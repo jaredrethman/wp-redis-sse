@@ -1,0 +1,17 @@
+{
+    "name": "jaredrethman/wp-redis-sse",
+    "require": {
+        "predis/predis": "^2.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "WpRediSse\\": "includes/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Jared Rethman",
+            "email": "jaredrethman@gmail.com"
+        }
+    ]
+}
