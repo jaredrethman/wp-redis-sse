@@ -1,4 +1,5 @@
 (function () {
+  console.log("loaded");
   const listeners = {
     message: undefined,
     open(e) {
@@ -9,12 +10,12 @@
         console.log("SSE closed!");
       }
     },
-    subscribe({ data }) {
-      console.log("SSE subscribed:", data);
+    subscribe(e) {
+      console.log("SSE subscribed:", e);
     },
-    siteOptionUpdate({ data }) {
+    wpRedisSse({ data }) {
       const update = JSON.parse(data);
-      console.log("Site option updated to:", update);
+      console.log("Site option updated to:", update, data);
     },
     default(e) {
       console.log("Default:", e);
@@ -24,7 +25,8 @@
   const serverSentEvent = {
     source: undefined,
     connect() {
-      this.source = new EventSource(window.wpRedisSse.eventSource);
+      // @TODO pass credentials along with this script
+      this.source = new EventSource(`${window.wpRedisSse.eventSource}`);
       return this;
     },
     disconnect() {

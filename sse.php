@@ -9,6 +9,10 @@ use WpRedisSse\utils;
 
 require_once __DIR__ . '/includes/utils.php';
 
+$redis_client = utils\get_client([
+    'host' => 'redis',
+    'auth' => 'root'
+]);
 set_time_limit(0);
 
 header("Content-Type: text/event-stream");
@@ -17,34 +21,30 @@ header("Connection: keep-alive");
 header('X-Accel-Buffering: no');
 ob_implicit_flush(true);
 
-$redis = utils\get_client();
-$loop = $redis->pubSubLoop(['subscribe' => 'site-option-update']);
+try {
+    // Inform the client of a successful subscription.
+    echo utils\format_sse(['event' => 'subscribe', 'data' => 'subscribed']);
 
-/** @var Predis\PubSub\Consumer\Message $message */
-foreach ($loop as $message) {
-    // Immediately handle message if present
-    if ($message->kind === 'message' && $message->channel === 'site-option-update') {
-        echo "event: siteOptionUpdate\n";
-        echo "data: {$message->payload}\n\n";
-    } elseif ($message->kind === 'subscribe') {
-        echo "event: subscribe\n";
-        echo "data: Subscribed to {$message->channel}\n\n";
-    }
+    // Start the subscription
+    $redis_client->subscribe(['wrs-options-channel'], function ($redis, string $channel, string $message) {
+        if ($channel === 'wrs-options-channel') {
+            echo utils\format_sse([
+                'data'  => $message,
+                'event' => 'wpRedisSse',
+            ]);
+            ob_flush();
+            flush();
+        }
+    });
+} catch (\Throwable $th) {
+    // Log or handle the error as appropriate.
+    error_log("Error occurred in Redis subscription: " . $th->getMessage());
 
-    // Flush the output buffer and send echoed messages to the browser
-    while (ob_get_level() > 0) {
-        ob_end_flush();
-    }
-    flush();
-
-    // Break the loop if the connection is closed by the client
-    if (connection_status() != CONNECTION_NORMAL) {
-        break;
-    }
-
-    // Sleep for a bit to prevent the script from consuming too much CPU
-    sleep(1);
+    // Inform the client that an error has occurred.
+    echo utils\format_sse([
+        'data' => json_encode($th->getMessage()),
+        'event' => 'error',
+    ]);
 }
 
-$loop->unsubscribe();
-$loop->stop();
+$redis_client->close();
