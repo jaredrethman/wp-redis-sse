@@ -1,7 +1,8 @@
 <?php
-
 /**
  * WP Redis SSE - Utility functions and helpers
+ * 
+ * @package WpRedisSse
  */
 
 namespace WpRedisSse\utils;
@@ -16,17 +17,22 @@ use Throwable;
  */
 function get_client($connect_params = [])
 {
+    if (!class_exists('\\Redis')) {
+        throw new Exception(__FUNCTION__ . '\\Error: PhpRedis extension is required to use this plugin.');
+    }
     static $client;
     try {
         if (null === $client) {
+            // wp-redis wp-config.php global
+            global $redis_server;
+            // Attempt to resolve using env variables i.e. $_SERVER
             $connect_args = [
-                'host'           => $connect_params['host'] ?? '127.0.0.1',
-                'port'           => $connect_params['port'] ?? 6379,
-                'connectTimeout' => $connect_params['timeout'] ?? 60,
+                'host'           => $_SERVER['CACHE_HOST'] ?? $redis_server['host'] ?? $connect_params['host'] ?? '127.0.0.1',
+                'port'           => $_SERVER['CACHE_PORT'] ?? $redis_server['port'] ?? $connect_params['port'] ?? 6379,
+                'auth'           => $_SERVER['CACHE_PASSWORD'] ?? $redis_server['auth'] ?? $connect_params['auth'] ?? '',
+                'connectTimeout' => $connect_params['timeout'] ?? 60, // sec
+                'retryInterval'  => $connect_params['retry-interval'] ?? 100, // ms
             ];
-            if (isset($connect_params['auth'])) {
-                $connect_args['auth'] = $connect_params['auth'];
-            }
             $client = new Redis($connect_args);
         }
     } catch (Throwable $th) {

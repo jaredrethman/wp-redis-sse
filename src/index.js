@@ -15,7 +15,7 @@
     },
     wpRedisSse({ data }) {
       const update = JSON.parse(data);
-      console.log("Site option updated to:", update, data);
+      console.log("Site option updated to:", update);
     },
     default(e) {
       console.log("Default:", e);
