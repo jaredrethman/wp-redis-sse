@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Plugin Name:         WordPress Redis SSE
+ * Plugin Name:         WP Redis SSE
  * Requires Plugins:    wp-redis
  * Plugin URI:          https://github.com/jaredrethman/wp-redis-sse
  * Description:         A WordPress plugin for Server-Sent-Events using Redis pubSub
