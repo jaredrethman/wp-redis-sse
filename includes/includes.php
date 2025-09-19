@@ -1,12 +1,15 @@
 <?php
+
 /**
  * WP Redis SSE - Includes
  */
 
- // Classes
-require_once WRS_DIR . '/includes/class-event-message.php';
+use const WpRedisSse\DIR;
+
+// Classes
+require_once DIR . '/includes/class-event-message.php';
+require_once DIR . '/includes/class-pub-sub.php';
 
 // Functions
-require_once WRS_DIR . '/includes/utils.php';
-require_once WRS_DIR . '/includes/hooks.php';
-
+require_once DIR . '/includes/utils.php';
+require_once DIR . '/includes/hooks.php';

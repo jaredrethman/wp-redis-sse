@@ -15,7 +15,7 @@
     },
     wpRedisSse({ data }) {
       const update = JSON.parse(data);
-      console.log("Site option updated to:", update);
+      console.log("wpRedisSse:", update);
     },
     default(e) {
       console.log("Default:", e);
@@ -33,11 +33,11 @@
       this.source.close();
       return this;
     },
-		/**
-		 * Helper for adding or removing event listeners
-		 * @param {string} action String either `'add'` or `'remove'`
-		 * @returns 
-		 */
+    /**
+     * Helper for adding or removing event listeners
+     * @param {string} action String either `'add'` or `'remove'`
+     * @returns
+     */
     eventListeners(action = "add") {
       for (const [eventName, eventListener] of Object.entries(listeners)) {
         this.source[`${action}EventListener`](
